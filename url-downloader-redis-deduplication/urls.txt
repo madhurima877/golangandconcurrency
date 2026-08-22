@@ -1,0 +1,10 @@
+https://example.com
+https://www.google.com
+https://example.com
+https://httpbin.org/get
+https://www.google.com
+https://invalid-url-that-does-not-exist-12345.com
+https://httpbin.org/status/404
+https://example.com
+https://example.com
+https://invalid-url-that-does-not-exist-12345.com
