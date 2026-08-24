@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: file-redis
+    ports:
+      - "16479:6379"
+
+  api:
+    build: .
+    container_name: file-api
+    ports:
+      - "8080:8080"
+    command: ["./api"]
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    container_name: file-worker
+    command: ["./worker"]
+    depends_on:
+      - redis
