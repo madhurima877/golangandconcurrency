@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: order-redis
+    ports:
+      - "16479:6379"
+  api:
+    build: .
+    container_name: order-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
