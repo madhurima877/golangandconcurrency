@@ -38,6 +38,9 @@ func NewWriter(topic string) *Writer {
 		writer: writer,
 	}
 }
+func (w *Writer) Close() error {
+	return w.writer.Close()
+}
 
 func (r *Reader) FetchMessage(ctx context.Context) (kafkago.Message, error) {
 	return r.reader.FetchMessage(ctx)
@@ -48,4 +51,14 @@ func (r *Reader) CommitMessage(ctx context.Context, msg kafkago.Message) error {
 }
 func (w *Writer) WriteMessage(ctx context.Context, value []byte) error {
 	return w.writer.WriteMessages(ctx, kafkago.Message{Value: value})
+}
+
+func (w *Writer) WriteMessageWithKey(ctx context.Context, key []byte, value []byte) error {
+	return w.writer.WriteMessages(ctx, kafkago.Message{
+		Key:   key,
+		Value: value,
+	})
+}
+func (r *Reader) Close() error {
+	return r.reader.Close()
 }
