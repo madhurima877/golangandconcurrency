@@ -1,6 +1,10 @@
 package kafka
 
-import kafkago "github.com/segmentio/kafka-go"
+import (
+	"context"
+
+	kafkago "github.com/segmentio/kafka-go"
+)
 
 type Reader struct {
 	reader *kafkago.Reader
@@ -12,9 +16,10 @@ type Writer struct {
 
 func NewReader(topic, groupID string) *Reader {
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
-		Brokers: []string{"localhost:9092"},
-		GroupID: groupID,
-		Topic:   topic,
+		Brokers:        []string{"localhost:9082"},
+		GroupID:        groupID,
+		Topic:          topic,
+		CommitInterval: 0,
 	})
 
 	return &Reader{
@@ -23,13 +28,24 @@ func NewReader(topic, groupID string) *Reader {
 }
 
 func NewWriter(topic string) *Writer {
-	writer := &kafkago.Writer{
-		Addr:     kafkago.TCP("localhost:9092"),
+	writer := kafkago.NewWriter(kafkago.WriterConfig{
+		Brokers:  []string{"localhost:9082"},
 		Topic:    topic,
 		Balancer: &kafkago.LeastBytes{},
-	}
+	})
 
 	return &Writer{
 		writer: writer,
 	}
+}
+
+func (r *Reader) FetchMessage(ctx context.Context) (kafkago.Message, error) {
+	return r.reader.FetchMessage(ctx)
+}
+func (r *Reader) CommitMessage(ctx context.Context, msg kafkago.Message) error {
+	return r.reader.CommitMessages(ctx, msg)
+	return nil
+}
+func (w *Writer) WriteMessage(ctx context.Context, value []byte) error {
+	return w.writer.WriteMessages(ctx, kafkago.Message{Value: value})
 }
