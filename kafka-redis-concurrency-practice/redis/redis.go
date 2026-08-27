@@ -58,3 +58,38 @@ func (c *Client) PopJob(ctx context.Context, queue string) (string, error) {
 	}
 	return result[1], nil
 }
+
+func (c *Client) AcquireLock(ctx context.Context, key string, value string, ttl time.Duration) (bool, error) {
+	return c.Redis.SetNX(ctx, key, value, ttl).Result()
+
+}
+func (c *Client) ReleaseLock(
+	ctx context.Context,
+	key string,
+	value string,
+) error {
+	script := `
+if redis.call("GET", KEYS[1]) == ARGV[1] then
+	return redis.call("DEL", KEYS[1])
+end
+
+return 0
+`
+
+	_, err := c.Redis.Eval(
+		ctx,
+		script,
+		[]string{key},
+		value,
+	).Result()
+
+	return err
+}
+
+func (c *Client) Publish(ctx context.Context, channel string, message string) error {
+	return c.Redis.Publish(ctx, channel, message).Err()
+}
+
+func (c *Client) Subscribe(ctx context.Context, channel string) *redis.PubSub {
+	return c.Redis.Subscribe(ctx, channel)
+}
