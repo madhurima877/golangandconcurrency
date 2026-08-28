@@ -93,3 +93,10 @@ func (c *Client) Publish(ctx context.Context, channel string, message string) er
 func (c *Client) Subscribe(ctx context.Context, channel string) *redis.PubSub {
 	return c.Redis.Subscribe(ctx, channel)
 }
+
+func (c *Client) Increment(ctx context.Context, key string) (int64, error) {
+	return c.Redis.Incr(ctx, key).Result()
+}
+func (c *Client) Expire(ctx context.Context, key string, ttl time.Duration) error {
+	return c.Redis.Expire(ctx, key, ttl).Err()
+}
