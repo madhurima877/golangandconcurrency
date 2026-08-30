@@ -100,3 +100,13 @@ func (c *Client) Increment(ctx context.Context, key string) (int64, error) {
 func (c *Client) Expire(ctx context.Context, key string, ttl time.Duration) error {
 	return c.Redis.Expire(ctx, key, ttl).Err()
 }
+func (c *Client) Push(ctx context.Context, key string, value string) error {
+	return c.Redis.LPush(ctx, key, value).Err()
+}
+func (c *Client) Pop(ctx context.Context, key string) (string, error) {
+	result, err := c.Redis.BRPop(ctx, 0, key).Result()
+	if err != nil {
+		return "", err
+	}
+	return result[1], nil
+}
