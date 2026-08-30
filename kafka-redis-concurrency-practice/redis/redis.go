@@ -136,3 +136,10 @@ func (c *Client) Claim(
 		Messages: []string{messageID},
 	}).Err()
 }
+func (c *Client) Get(ctx context.Context, key string) (string, error) {
+	return c.Redis.Get(ctx, key).Result()
+}
+
+func (c *Client) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
+	return c.Redis.Set(ctx, key, value, expiration).Err()
+}
