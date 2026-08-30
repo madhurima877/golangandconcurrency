@@ -110,3 +110,29 @@ func (c *Client) Pop(ctx context.Context, key string) (string, error) {
 	}
 	return result[1], nil
 }
+func (c *Client) AddToStream(
+	ctx context.Context,
+	stream string,
+	values map[string]interface{},
+) (string, error) {
+	return c.Redis.XAdd(ctx, &redis.XAddArgs{
+		Stream: stream,
+		Values: values,
+	}).Result()
+}
+func (c *Client) Claim(
+	ctx context.Context,
+	stream string,
+	group string,
+	consumer string,
+	minIdle time.Duration,
+	messageID string,
+) error {
+	return c.Redis.XClaim(ctx, &redis.XClaimArgs{
+		Stream:   stream,
+		Group:    group,
+		Consumer: consumer,
+		MinIdle:  minIdle,
+		Messages: []string{messageID},
+	}).Err()
+}
