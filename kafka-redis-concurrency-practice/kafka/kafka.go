@@ -2,7 +2,9 @@ package kafka
 
 import (
 	"context"
+	"log"
 
+	"github.com/segmentio/kafka-go"
 	kafkago "github.com/segmentio/kafka-go"
 )
 
@@ -61,4 +63,47 @@ func (w *Writer) WriteMessageWithKey(ctx context.Context, key []byte, value []by
 }
 func (r *Reader) Close() error {
 	return r.reader.Close()
+}
+
+func (w *Writer) WriteMessageWithKeyRoundRobin(ctx context.Context, key []byte, value []byte) error {
+	return w.writer.WriteMessages(ctx, kafkago.Message{
+		Key:   key,
+		Value: value,
+	})
+}
+func ReaderWithWorker(ctx context.Context, topic string, groupID, workerId string) {
+	reader := NewReader(topic, groupID)
+	defer reader.Close()
+	log.Printf("worker %s started", workerId)
+	for {
+		msg, err := reader.FetchMessage(ctx)
+		if err != nil {
+			if ctx.Err() != nil {
+				log.Printf("worker %s shutting down", workerId)
+				return
+			}
+			log.Printf("worker %s error: %v", workerId, err)
+			continue
+		}
+		log.Printf(
+			"worker=%s partition=%d key=%s value=%s",
+			workerId,
+			msg.Partition,
+			msg.Key,
+			msg.Value,
+		)
+		if err := reader.CommitMessage(ctx, msg); err != nil {
+			log.Printf("worker %s commit error: %v", workerId, err)
+		}
+
+	}
+
+}
+func NewKeyWriter(topic string) *Writer {
+	writer := &kafka.Writer{
+		Addr:     kafka.TCP("localhost:9082"),
+		Topic:    topic,
+		Balancer: &kafka.Hash{},
+	}
+	return &Writer{writer: writer}
 }
