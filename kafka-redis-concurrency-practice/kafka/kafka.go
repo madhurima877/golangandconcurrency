@@ -44,12 +44,9 @@ func (w *Writer) Close() error {
 	return w.writer.Close()
 }
 
-func (r *Reader) FetchMessage(ctx context.Context) (kafkago.Message, error) {
-	return r.reader.FetchMessage(ctx)
-}
 func (r *Reader) CommitMessage(ctx context.Context, msg kafkago.Message) error {
 	return r.reader.CommitMessages(ctx, msg)
-	return nil
+
 }
 func (w *Writer) WriteMessage(ctx context.Context, value []byte) error {
 	return w.writer.WriteMessages(ctx, kafkago.Message{Value: value})
@@ -106,4 +103,8 @@ func NewKeyWriter(topic string) *Writer {
 		Balancer: &kafka.Hash{},
 	}
 	return &Writer{writer: writer}
+}
+
+func (r *Reader) FetchMessage(ctx context.Context) (kafkago.Message, error) {
+	return r.reader.FetchMessage(ctx)
 }
