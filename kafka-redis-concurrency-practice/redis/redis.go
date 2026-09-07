@@ -143,3 +143,29 @@ func (c *Client) Get(ctx context.Context, key string) (string, error) {
 func (c *Client) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
 	return c.Redis.Set(ctx, key, value, expiration).Err()
 }
+
+func (c *Client) IncrementWithWatch(ctx context.Context) error {
+	for i := 0; i < 10; i++ {
+		err := c.Redis.Watch(ctx, func(tx *redis.Tx) error {
+			value, err := tx.Get(ctx, "counter").Int()
+			if err != nil {
+				return err
+			}
+			value++
+			_, err = tx.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+				pipe.Set(ctx, "counter", value, 0)
+				return nil
+			})
+			return err
+		}, "counter")
+		if err == nil {
+			return nil
+		}
+		if err == redis.TxFailedErr {
+			continue
+		}
+		return err
+
+	}
+	return redis.TxFailedErr
+}
