@@ -7,37 +7,39 @@ import (
 )
 
 type TokenBucket struct {
-	tokens     int
+	fillrate   int
 	capacity   int
-	refillrate int
-	lastRefill time.Time
+	lastrefill time.Time
+	token      int
 	mu         sync.Mutex
 }
 
-func NewTokenBucket(capacity, refillrate int) *TokenBucket {
+func NewTokenBucket(fillrate int, capacity int) *TokenBucket {
 	return &TokenBucket{
-		tokens:     capacity,
+		fillrate:   fillrate,
 		capacity:   capacity,
-		refillrate: refillrate,
-		lastRefill: time.Now(),
+		token:      capacity,
+		lastrefill: time.Now(),
 	}
+
 }
+
 func (tb *TokenBucket) Allow() bool {
 	tb.mu.Lock()
 	defer tb.mu.Unlock()
-	seconds := time.Since(tb.lastRefill).Seconds()
-	tokensToAdd := int(seconds * float64(tb.refillrate))
+	secondsElapseds := time.Since(tb.lastrefill).Seconds()
+	tokensToAdd := tb.fillrate * int(secondsElapseds)
 	if tokensToAdd > 0 {
-		tb.tokens = min(tb.tokens+tokensToAdd, tb.capacity)
-		tb.lastRefill = time.Now()
+		tb.token = min(tb.capacity, tb.token+tokensToAdd)
+		tb.lastrefill = time.Now()
 	}
-	if tb.tokens > 0 {
-		tb.tokens -= 1
+	if tb.token > 0 {
+		tb.token -= 1
 		return true
 	}
 	return false
-}
 
+}
 func main() {
 	limiter := NewTokenBucket(5, 1)
 	for i := 1; i <= 20; i++ {
@@ -58,5 +60,4 @@ func main() {
 			fmt.Println("Request", i, "rejected")
 		}
 	}
-
 }

@@ -7,22 +7,22 @@ import (
 )
 
 type FixedWindowLimiter struct {
-	limit       int
-	counter     int
 	window      time.Duration
 	windowStart time.Time
+	limit       int
+	counter     int
 	mu          sync.Mutex
 }
 
-func NewFixedWindowLimiter(limit int, window time.Duration) *FixedWindowLimiter {
+func NewFixedWindowLimiter(window time.Duration, limit int) *FixedWindowLimiter {
 	return &FixedWindowLimiter{
-		limit:       limit,
 		window:      window,
-		windowStart: time.Now(),
+		limit:       limit,
 		counter:     0,
+		windowStart: time.Now(),
 	}
-
 }
+
 func (f *FixedWindowLimiter) Allow() bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -37,7 +37,7 @@ func (f *FixedWindowLimiter) Allow() bool {
 	return true
 }
 func main() {
-	limiter := NewFixedWindowLimiter(5, 10*time.Second)
+	limiter := NewFixedWindowLimiter(10*time.Second, 5)
 	for i := 1; i <= 100; i++ {
 		if limiter.Allow() {
 			log.Println("Allowed")
@@ -46,4 +46,5 @@ func main() {
 		}
 		time.Sleep(time.Second)
 	}
+
 }
