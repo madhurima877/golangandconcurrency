@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: order-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders
+    ports:
+      - "54132:5432"
+  redis:
+    image: redis:7
+    container_name: order-redis
+    ports:
+      - "63480:6379"
