@@ -9,9 +9,14 @@ import (
 var (
 	processedOrders int
 	mu              sync.Mutex
+	workerSemaphore = make(chan struct{}, 3)
 )
 
 func ProcessOrder(orderID int) {
+	workerSemaphore <- struct{}{}
+	defer func() {
+		<-workerSemaphore
+	}()
 
 	mu.Lock()
 	processedOrders++
@@ -22,19 +27,4 @@ func ProcessOrder(orderID int) {
 	time.Sleep(2 * time.Second)
 
 	fmt.Println("Order processed:", orderID)
-}
-func RunWorkers() {
-	var wg sync.WaitGroup
-	for i := 1; i <= 5; i++ {
-		wg.Add(1)
-		go func(id int) {
-			defer wg.Done()
-			fmt.Println("Worker started:", id)
-			time.Sleep(1 * time.Second)
-			fmt.Println("Worker finished:", id)
-
-		}(i)
-	}
-	wg.Wait()
-	fmt.Println("All workers completed")
 }

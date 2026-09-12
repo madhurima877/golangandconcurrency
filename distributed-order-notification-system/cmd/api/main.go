@@ -34,7 +34,8 @@ func main() {
 	}
 
 	fmt.Println("Data got in Redis", data)
-	service.RunWorkers()
+	jobs := make(chan service.Job)
+	service.
 	http.HandleFunc("/health", handler.Health)
 	http.HandleFunc("/orders", handler.CreateOrder)
 	log.Println("Server running on :8080")
