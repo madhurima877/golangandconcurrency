@@ -5,7 +5,6 @@ import (
 	"distributed-order-notification-system/internal/config"
 	"distributed-order-notification-system/internal/handler"
 	"distributed-order-notification-system/internal/middleware"
-	"distributed-order-notification-system/internal/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -34,8 +33,7 @@ func main() {
 	}
 
 	fmt.Println("Data got in Redis", data)
-	jobs := make(chan service.Job)
-	service.
+
 	http.HandleFunc("/health", handler.Health)
 	http.HandleFunc("/orders", handler.CreateOrder)
 	log.Println("Server running on :8080")
