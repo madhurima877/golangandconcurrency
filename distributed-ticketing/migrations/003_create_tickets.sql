@@ -1,0 +1,7 @@
+CREATE TABLE tickets (
+    id BIGSERIAL PRIMARY KEY,
+    event_id BIGINT NOT NULL REFERENCES events(id),
+    price NUMERIC(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

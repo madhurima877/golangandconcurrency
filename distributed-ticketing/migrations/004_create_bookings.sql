@@ -1,0 +1,7 @@
+CREATE TABLE bookings (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    ticket_id BIGINT NOT NULL REFERENCES tickets(id),
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

@@ -1,0 +1,7 @@
+CREATE TABLE payments (
+    id BIGSERIAL PRIMARY KEY,
+    booking_id BIGINT NOT NULL REFERENCES bookings(id),
+    amount NUMERIC(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
