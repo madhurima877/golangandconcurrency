@@ -1,0 +1,22 @@
+package db
+
+import (
+	"database/sql"
+
+	_ "github.com/lib/pq"
+)
+
+func Connect() (*sql.DB, error) {
+	dsn := "host=postgres user=postgres password=postgres dbname=ticketing sslmode=disable"
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
