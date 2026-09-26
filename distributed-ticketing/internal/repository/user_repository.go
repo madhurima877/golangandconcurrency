@@ -2,8 +2,11 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"distributed-ticketing/internal/model"
+
+	"github.com/lib/pq"
 )
 
 type UserRepository struct {
@@ -30,6 +33,10 @@ func (r *UserRepository) CreateUser(email string) (*model.User, error) {
 	)
 
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return nil, errors.New("user with this email already exists")
+		}
 		return nil, err
 	}
 
@@ -38,7 +45,7 @@ func (r *UserRepository) CreateUser(email string) (*model.User, error) {
 
 func (r *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	err:=r.db.QueryRow(`SELECT id, email, created_at
+	err := r.db.QueryRow(`SELECT id, email, created_at
 		FROM users
 		WHERE email = $1`).Scan(&user.ID, &user.Email, &user.CreatedAt)
 	if err != nil {
