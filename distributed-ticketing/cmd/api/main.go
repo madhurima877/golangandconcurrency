@@ -2,6 +2,9 @@ package main
 
 import (
 	"distributed-ticketing/internal/db"
+	"distributed-ticketing/internal/handler"
+	"distributed-ticketing/internal/repository"
+	"distributed-ticketing/internal/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,11 +21,18 @@ func main() {
 		panic(err)
 	}
 	defer database.Close()
+	userRepository := repository.NewUserRepository(database)
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(userService)
+
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "OK")
 	})
+
+	http.HandleFunc("/users", userHandler.CreateUser)
+
 	fmt.Println("API running on :8080")
-	if err := http.ListenAndServe(":8080"); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
 }
