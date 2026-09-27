@@ -5,6 +5,7 @@ import (
 	"distributed-ticketing/internal/handler"
 	"distributed-ticketing/internal/repository"
 	"distributed-ticketing/internal/service"
+	"distributed-ticketing/internal/worker"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,6 +22,11 @@ func main() {
 		panic(err)
 	}
 	defer database.Close()
+	outboxWorker := worker.NewOutboxWorker(database)
+	if err := outboxWorker.Process(); err != nil {
+		log.Println(err)
+	}
+
 	userRepository := repository.NewUserRepository(database)
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
