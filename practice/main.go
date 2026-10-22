@@ -51,7 +51,7 @@ func processWithWorkers(ctx context.Context, tasks []func() error, workerCount i
 		}
 
 	}
-	return result
+	//return result
 }
 func worker(wg *sync.WaitGroup, jobs <-chan func() error, ctx context.Context, res chan<- error) {
 	defer wg.Done()
