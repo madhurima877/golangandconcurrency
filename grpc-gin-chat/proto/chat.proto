@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package chat;
+option go_package="grpc-gin-chat/proto;chat";
+
+message ChatMessage {
+    string user_id = 1;
+    string message = 2;
+    int64 timestamp = 3;
+}
+service ChatService{
+    rpc SendMessage(stream ChatMessage) returns(stream ChatMessage);
+}
