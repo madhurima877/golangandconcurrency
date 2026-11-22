@@ -16,5 +16,5 @@ type Manager struct {
 func (m *Manager) Register(userID string, stream grpc.BidiStreamingServer[pb.ChatMessage, pb.ChatMessage]) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.clients[userID] = stream
+	m.clients[userID] = stream 
 }
